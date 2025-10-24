@@ -10,33 +10,43 @@ const popupRoutes = require("./routes/popupRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 
+// Load environment variables
 dotenv.config();
+
+// Connect to MongoDB
 connectDB();
 
 const app = express();
+
+// ⚡ CORS setup
+// Allows any origin (for development). For production, replace "*" with your frontend URL
 app.use(cors({ origin: "*" }));
+
+// Body parser
 app.use(express.json());
 
-// Test Route
+// --------------------
+// Test route
+// --------------------
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
-// Package routes
+// --------------------
+// API routes
+// --------------------
 app.use("/api/packages", packageRoutes);
-
-// Blog routes
 app.use("/api/blogs", blogRoutes);
-
-// Popup routes
 app.use("/api/popups", popupRoutes);
-
-// Contact routes
 app.use("/api/contacts", contactRoutes);
-
-// Contact routes
 app.use("/api/reviews", reviewRoutes);
 
+// --------------------
+// Start server
+// --------------------
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, "0.0.0.0", () => console.log(`Server running on port ${PORT} 🚀`));
+app.listen(PORT, "0.0.0.0", () =>
+  console.log(`Server running on port ${PORT} 🚀`)
+);
 
+module.exports = app; // Optional: for testing or serverless adapters
