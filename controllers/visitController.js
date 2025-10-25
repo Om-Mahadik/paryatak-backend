@@ -1,15 +1,32 @@
 const Visit = require("../models/Visit");
 
-// Log a new visit
+// Log a new visit (unique per IP per 5 minutes)
 exports.addVisit = async (req, res) => {
   try {
-    const visit = await Visit.create({ ip: req.ip });
-    res.status(201).json({ success: true, visit });
+    // Get user IP (works behind proxies too)
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+    // Check if a visit from this IP exists in the last 5 minutes
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const existingVisit = await Visit.findOne({
+      ip,
+      createdAt: { $gte: fiveMinutesAgo }
+    });
+
+    if (!existingVisit) {
+      // Only create a new visit if none exists in last 5 minutes
+      const visit = await Visit.create({ ip });
+      return res.status(201).json({ success: true, visit });
+    }
+
+    // If already exists, just return success without creating new
+    res.status(200).json({ success: true, message: "Visit already counted" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: "Failed to log visit" });
   }
 };
+
 
 // Get visit stats
 exports.getStats = async (req, res) => {
