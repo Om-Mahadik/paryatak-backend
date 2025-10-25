@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+// models/Popup.js
+const mongoose = require("mongoose");
 
 const popupSchema = new mongoose.Schema(
   {
@@ -6,7 +7,7 @@ const popupSchema = new mongoose.Schema(
     phone: { type: String, required: true },
     isRead: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true } // automatically adds createdAt & updatedAt
 );
 
-export default mongoose.model("Popup", popupSchema);
+module.exports = mongoose.model("Popup", popupSchema);

@@ -1,7 +1,8 @@
-import Popup from "../models/Popup.js";
+// controllers/popupController.js
+const Popup = require("../models/Popup");
 
 // Create popup
-export const createPopup = async (req, res) => {
+const createPopup = async (req, res) => {
   try {
     const { name, phone } = req.body;
     const popup = await Popup.create({ name, phone });
@@ -12,7 +13,7 @@ export const createPopup = async (req, res) => {
 };
 
 // Get all popups
-export const getPopups = async (req, res) => {
+const getPopups = async (req, res) => {
   try {
     const popups = await Popup.find().sort({ createdAt: -1 });
     res.json(popups);
@@ -22,7 +23,7 @@ export const getPopups = async (req, res) => {
 };
 
 // Mark as read/unread
-export const markAsRead = async (req, res) => {
+const markAsRead = async (req, res) => {
   try {
     const { id } = req.params;
     const { isRead } = req.body; // true/false
@@ -34,7 +35,7 @@ export const markAsRead = async (req, res) => {
 };
 
 // Delete popup
-export const deletePopup = async (req, res) => {
+const deletePopup = async (req, res) => {
   try {
     const { id } = req.params;
     await Popup.findByIdAndDelete(id);
@@ -42,4 +43,11 @@ export const deletePopup = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: "Failed to delete popup", error: err.message });
   }
+};
+
+module.exports = {
+  createPopup,
+  getPopups,
+  markAsRead,
+  deletePopup,
 };

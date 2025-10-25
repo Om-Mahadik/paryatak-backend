@@ -1,7 +1,9 @@
+// routes/activityRoutes.js
 const express = require("express");
-const router = express.Router();
 const { getTodaysActivity } = require("../controllers/activityController");
+
+const router = express.Router();
 
 router.get("/today", getTodaysActivity);
 
-module.exports = router;
+module.exports = router; // ✅ CommonJS export

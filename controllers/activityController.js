@@ -1,8 +1,9 @@
+// controllers/activityController.js
 const Popup = require("../models/Popup");
 const Contact = require("../models/Contact");
 const Review = require("../models/Review");
 
-exports.getTodaysActivity = async (req, res) => {
+const getTodaysActivity = async (req, res) => {
   try {
     // Start of today (midnight)
     const startOfToday = new Date();
@@ -12,16 +13,20 @@ exports.getTodaysActivity = async (req, res) => {
     const [popupsCount, contactsCount, reviewsCount] = await Promise.all([
       Popup.countDocuments({ createdAt: { $gte: startOfToday } }),
       Contact.countDocuments({ createdAt: { $gte: startOfToday } }),
-      Review.countDocuments({ createdAt: { $gte: startOfToday } })
+      Review.countDocuments({ createdAt: { $gte: startOfToday } }),
     ]);
 
     res.json({
       popupsSubmitted: popupsCount,
       peopleContacted: contactsCount,
-      reviewsReceived: reviewsCount
+      reviewsReceived: reviewsCount,
     });
   } catch (err) {
     console.error("Error fetching today's activity:", err);
     res.status(500).json({ message: "Server error fetching today's activity" });
   }
+};
+
+module.exports = {
+  getTodaysActivity,
 };
