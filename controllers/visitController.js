@@ -8,22 +8,18 @@ exports.addVisit = async (req, res) => {
   try {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
-    // Only create a new visit if none exists from this IP in last 5 minutes
+    // Check if IP visited in last 5 minutes
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const existingVisit = await Visit.findOne({
-      ip,
-      createdAt: { $gte: fiveMinutesAgo },
-    });
+    const existingVisit = await Visit.findOne({ ip, createdAt: { $gte: fiveMinutesAgo } });
 
     if (!existingVisit) {
       await Visit.create({ ip });
 
-      // Update DailyStat for today
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      // Use string date for DailyStat
+      const todayStr = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
 
-      const dailyStat = await DailyStat.findOneAndUpdate(
-        { date: today },
+      await DailyStat.findOneAndUpdate(
+        { date: todayStr },
         { $inc: { visits: 1 } },
         { upsert: true, new: true }
       );
@@ -50,20 +46,21 @@ exports.getStats = async (req, res) => {
     const liveCount = await Visit.countDocuments({ createdAt: { $gte: thirtySecondsAgo } });
 
     // Today
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const todayDoc = await DailyStat.findOne({ date: startOfDay });
+    const todayStr = now.toISOString().slice(0, 10);
+    const todayDoc = await DailyStat.findOne({ date: todayStr });
     const todayCount = todayDoc ? todayDoc.visits : 0;
 
     // This week (Monday start)
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay() + 1);
-    startOfWeek.setHours(0, 0, 0, 0);
-    const weekStats = await DailyStat.find({ date: { $gte: startOfWeek } });
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - now.getDay() + 1);
+    const mondayStr = monday.toISOString().slice(0, 10);
+    const weekStats = await DailyStat.find({ date: { $gte: mondayStr } });
     const weekCount = weekStats.reduce((sum, doc) => sum + doc.visits, 0);
 
     // This month
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const monthStats = await DailyStat.find({ date: { $gte: startOfMonth } });
+    const monthStr = startOfMonth.toISOString().slice(0, 10);
+    const monthStats = await DailyStat.find({ date: { $gte: monthStr } });
     const monthCount = monthStats.reduce((sum, doc) => sum + doc.visits, 0);
 
     res.status(200).json({ liveCount, todayCount, weekCount, monthCount });
@@ -72,3 +69,4 @@ exports.getStats = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch stats" });
   }
 };
+
