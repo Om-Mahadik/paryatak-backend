@@ -9,6 +9,7 @@ const blogRoutes = require("./routes/blogRoutes");
 const popupRoutes = require("./routes/popupRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
+const visitRoutes = require("./routes/visitRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -40,6 +41,7 @@ app.use("/api/blogs", blogRoutes);
 app.use("/api/popups", popupRoutes);
 app.use("/api/contacts", contactRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/visits", visitRoutes);
 
 // --------------------
 // Start server
