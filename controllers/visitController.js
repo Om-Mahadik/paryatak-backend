@@ -1,25 +1,26 @@
 const Visit = require("../models/Visit");
 
-// Log a new visit (unique per IP per 5 minutes)
+// ---------------------------
+// Log a new visit
+// ---------------------------
 exports.addVisit = async (req, res) => {
   try {
-    // Get user IP (works behind proxies too)
+    // Get visitor IP (works behind proxies too)
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
-    // Check if a visit from this IP exists in the last 5 minutes
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    // Only create a new visit if none exists from this IP in last 30 seconds (for testing)
+    const thirtySecondsAgo = new Date(Date.now() - 30 * 1000);
+
     const existingVisit = await Visit.findOne({
       ip,
-      createdAt: { $gte: fiveMinutesAgo }
+      createdAt: { $gte: thirtySecondsAgo }
     });
 
     if (!existingVisit) {
-      // Only create a new visit if none exists in last 5 minutes
-      const visit = await Visit.create({ ip });
-      return res.status(201).json({ success: true, visit });
+      await Visit.create({ ip }); // now cooldown is 30 sec
+      return res.status(201).json({ success: true, message: "Visit logged" });
     }
 
-    // If already exists, just return success without creating new
     res.status(200).json({ success: true, message: "Visit already counted" });
   } catch (err) {
     console.error(err);
@@ -27,11 +28,16 @@ exports.addVisit = async (req, res) => {
   }
 };
 
-
-// Get visit stats
+// ---------------------------
+// Fetch stats: live, today, week, month
+// ---------------------------
 exports.getStats = async (req, res) => {
   try {
     const now = new Date();
+
+    // Live visitors: last 30 seconds (for testing)
+    const thirtySecondsAgo = new Date(now.getTime() - 30 * 1000);
+    const liveCount = await Visit.countDocuments({ createdAt: { $gte: thirtySecondsAgo } });
 
     // Today
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -39,17 +45,13 @@ exports.getStats = async (req, res) => {
 
     // This week (Monday start)
     const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay() + 1);
+    startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Monday
     startOfWeek.setHours(0, 0, 0, 0);
     const weekCount = await Visit.countDocuments({ createdAt: { $gte: startOfWeek } });
 
     // This month
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const monthCount = await Visit.countDocuments({ createdAt: { $gte: startOfMonth } });
-
-    // Live visitors (last 5 mins)
-    const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
-    const liveCount = await Visit.countDocuments({ createdAt: { $gte: fiveMinutesAgo } });
 
     res.status(200).json({ liveCount, todayCount, weekCount, monthCount });
   } catch (err) {

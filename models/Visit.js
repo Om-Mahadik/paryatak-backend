@@ -2,11 +2,11 @@
 const mongoose = require("mongoose");
 
 const visitSchema = new mongoose.Schema({
-  ip: String, // optional, or userId if logged in
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+  ip: { type: String, required: true }, // store visitor IP
+  createdAt: { type: Date, default: Date.now, index: { expires: 300 } }, // TTL: 5 minutes
 });
+
+// Optional: ensure index exists in DB
+visitSchema.index({ createdAt: 1 }, { expireAfterSeconds: 300 });
 
 module.exports = mongoose.model("Visit", visitSchema);
