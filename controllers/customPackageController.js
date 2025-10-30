@@ -53,9 +53,24 @@ const markAsUnread = async (req, res) => {
   }
 };
 
+// ✅ Delete a request
+const deleteRequest = async (req, res) => {
+  try {
+    const request = await CustomPackage.findByIdAndDelete(req.params.id);
+    if (!request) return res.status(404).json({ success: false, message: "Request not found" });
+
+    res.json({ success: true, message: "Request deleted successfully!" });
+  } catch (err) {
+    console.error("Error deleting request:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
 module.exports = {
   createRequest,
   getAllRequests,
   markAsRead,
   markAsUnread,
+  deleteRequest,
 };
