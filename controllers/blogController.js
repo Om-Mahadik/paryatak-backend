@@ -32,7 +32,6 @@ const createBlog = async (req, res) => {
     duration,
     views,
     uploadDate,
-    link,
   } = req.body;
 
   try {
@@ -43,7 +42,6 @@ const createBlog = async (req, res) => {
       duration,
       views: views || 0,
       uploadDate: uploadDate || new Date(),
-      link,
     });
 
     const createdBlog = await blog.save();
@@ -63,7 +61,6 @@ const updateBlog = async (req, res) => {
     duration,
     views,
     uploadDate,
-    link,
   } = req.body;
 
   try {
@@ -76,7 +73,6 @@ const updateBlog = async (req, res) => {
     blog.duration = duration ?? blog.duration;
     blog.views = views ?? blog.views;
     blog.uploadDate = uploadDate || blog.uploadDate;
-    blog.link = link || blog.link;
 
     const updatedBlog = await blog.save();
     res.json(updatedBlog);

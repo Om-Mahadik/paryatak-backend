@@ -5,7 +5,6 @@ const blogSchema = new mongoose.Schema({
   duration: Number,
   views: Number,
   uploadDate: Date,
-  link: String,
   headImg: String,
   content: String,
 }, { timestamps: true });
