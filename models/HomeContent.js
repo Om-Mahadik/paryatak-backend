@@ -6,7 +6,7 @@ const homeContentSchema = new mongoose.Schema({
   subHeadline: { type: String, required: true },
   buttonText: { type: String, required: true },
   buttonLink: { type: String, required: true },
-  updatedAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model("HomeContent", homeContentSchema);

@@ -1,46 +1,85 @@
 const HomeContent = require("../models/HomeContent");
 
-// @desc Get homepage content
+// @desc Get all homepage hero sections
 // @route GET /api/home-content
 const getHomeContent = async (req, res) => {
   try {
-    const content = await HomeContent.findOne();
-    res.json(content || {});
+    const content = await HomeContent.find().sort({ createdAt: -1 });
+    res.json(content);
   } catch (error) {
     res.status(500).json({ error: "Error fetching home content" });
   }
 };
 
-// @desc Update or create homepage content
+// @desc Add a new homepage hero section
 // @route POST /api/home-content
-const updateHomeContent = async (req, res) => {
+const addHomeContent = async (req, res) => {
   try {
     const { imageUrl, headline, subHeadline, buttonText, buttonLink } = req.body;
 
-    let content = await HomeContent.findOne();
+    const content = await HomeContent.create({
+      imageUrl,
+      headline,
+      subHeadline,
+      buttonText,
+      buttonLink,
+    });
 
-    if (content) {
-      content.imageUrl = imageUrl;
-      content.headline = headline;
-      content.subHeadline = subHeadline;
-      content.buttonText = buttonText;
-      content.buttonLink = buttonLink;
-      content.updatedAt = Date.now();
-      await content.save();
-    } else {
-      content = await HomeContent.create({
+    res.status(201).json({ success: true, content });
+  } catch (error) {
+    res.status(500).json({ error: "Error adding home content" });
+  }
+};
+
+// @desc Update an existing homepage hero section
+// @route PUT /api/home-content/:id
+const updateHomeContent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { imageUrl, headline, subHeadline, buttonText, buttonLink } = req.body;
+
+    const updatedContent = await HomeContent.findByIdAndUpdate(
+      id,
+      {
         imageUrl,
         headline,
         subHeadline,
         buttonText,
         buttonLink,
-      });
+      },
+      { new: true } // return updated doc
+    );
+
+    if (!updatedContent) {
+      return res.status(404).json({ error: "Home content not found" });
     }
 
-    res.json({ success: true, content });
+    res.json({ success: true, updatedContent });
   } catch (error) {
     res.status(500).json({ error: "Error updating home content" });
   }
 };
 
-module.exports = { getHomeContent, updateHomeContent };
+// @desc Delete an existing hero section
+// @route DELETE /api/home-content/:id
+const deleteHomeContent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await HomeContent.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return res.status(404).json({ error: "Home content not found" });
+    }
+
+    res.json({ success: true, message: "Hero section deleted" });
+  } catch (error) {
+    res.status(500).json({ error: "Error deleting home content" });
+  }
+};
+
+module.exports = {
+  getHomeContent,
+  addHomeContent,
+  updateHomeContent,
+  deleteHomeContent,
+};
