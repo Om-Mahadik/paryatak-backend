@@ -15,7 +15,15 @@ const getHomeContent = async (req, res) => {
 // @route POST /api/home-content
 const addHomeContent = async (req, res) => {
   try {
-    const { imageUrl, headline, subHeadline, buttonText, buttonLink } = req.body;
+    const {
+      imageUrl,
+      headline,
+      subHeadline,
+      buttonText,
+      buttonLink,
+      headlineColor,
+      subHeadlineColor,
+    } = req.body;
 
     const content = await HomeContent.create({
       imageUrl,
@@ -23,10 +31,13 @@ const addHomeContent = async (req, res) => {
       subHeadline,
       buttonText,
       buttonLink,
+      headlineColor,
+      subHeadlineColor,
     });
 
     res.status(201).json({ success: true, content });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Error adding home content" });
   }
 };
@@ -36,7 +47,15 @@ const addHomeContent = async (req, res) => {
 const updateHomeContent = async (req, res) => {
   try {
     const { id } = req.params;
-    const { imageUrl, headline, subHeadline, buttonText, buttonLink } = req.body;
+    const {
+      imageUrl,
+      headline,
+      subHeadline,
+      buttonText,
+      buttonLink,
+      headlineColor,
+      subHeadlineColor,
+    } = req.body;
 
     const updatedContent = await HomeContent.findByIdAndUpdate(
       id,
@@ -46,6 +65,8 @@ const updateHomeContent = async (req, res) => {
         subHeadline,
         buttonText,
         buttonLink,
+        headlineColor,
+        subHeadlineColor,
       },
       { new: true } // return updated doc
     );
@@ -56,6 +77,7 @@ const updateHomeContent = async (req, res) => {
 
     res.json({ success: true, updatedContent });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Error updating home content" });
   }
 };
@@ -73,6 +95,7 @@ const deleteHomeContent = async (req, res) => {
 
     res.json({ success: true, message: "Hero section deleted" });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Error deleting home content" });
   }
 };
