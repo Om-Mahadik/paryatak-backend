@@ -12,6 +12,7 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const visitRoutes = require("./routes/visitRoutes");
 const activityRoutes = require("./routes/activityRoutes");
 const customPackageRoutes = require("./routes/customPackageRoutes");
+const homeContentRoutes = require("./routes/homeContentRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -46,6 +47,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/visits", visitRoutes);
 app.use("/api/activity", activityRoutes);
 app.use("/api/custom-packages", customPackageRoutes);
+app.use("/api/home-content", homeContentRoutes);
 
 // --------------------
 // Start server
